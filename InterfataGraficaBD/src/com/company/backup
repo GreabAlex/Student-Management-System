@@ -1,0 +1,150 @@
+for (int i=1;i<rowCount;i++){
+                        butonApasat=i;
+                        auxGrupuri.add(new JLabel(" "));
+                         butoane[butonApasat]=new JButton((String)data[i][1]);
+                        ((JButton)butoane[butonApasat]).setBackground(Color.orange);
+                         Font font=new Font(Font.DIALOG,Font.BOLD,10);
+                        ((JButton)butoane[butonApasat]).setFont(font);
+                         auxGrupuri.add(((JButton)butoane[butonApasat]));
+                         auxTransmitere=new String((String)data[butonApasat][0]);
+                         System.out.println((String)data[butonApasat][0]);
+                        ((JButton)butoane[butonApasat]).addActionListener(new ActionListener() {
+                             @Override
+                             public void actionPerformed(ActionEvent e) {
+                                 System.out.println(((JButton) butoane[butonApasat]).getText());
+                                 Statement selectStatement = null;
+                                 JButton buttonActual=(JButton)butoane[butonApasat];
+                                 pozitie=butonApasat;
+                                 try{
+
+                                     Connection connection2 = DriverManager.getConnection("jdbc:mysql://localhost/proiectbd?user=root&password=root");
+                                     ResultSet rs2 = null;
+                                     ResultSetMetaData rsmd = null;
+
+                                     Object[][] data1=new Object[20][4];
+
+                                     selectStatement = connection1.createStatement();
+                                     selectStatement.execute("Call AFISARE_MESAJE_GRUP("+auxTransmitere+")");
+                                     rs2 = selectStatement.getResultSet();
+
+                                     JPanel chatStanga=new JPanel();
+                                     chatStanga.setLayout(new GridLayout(14,1));
+                                     chatStanga.setBackground(Color.darkGray);
+                                     JPanel chatCentru=new JPanel();
+                                     chatCentru.setLayout(new GridLayout(14,1));
+                                     chatCentru.setBackground(Color.darkGray);
+
+                                     int rowCount1 = 0;
+                                     while(rs2.next()){
+                                         data1[rowCount1][0]=rs2.getString("mesaj"); data1[rowCount1][1]=rs2.getString("data_mesaj");
+                                         data1[rowCount1][2]=rs2.getString("nume"); data1[rowCount1][3]=rs2.getString("prenume");
+                                         //chatStanga.add(new JLabel((String)data1[rowCount1][1]+" "+(String)data1[rowCount1][2]+" "+(String)data1[rowCount1][3]));
+                                         JPanel auxX=new JPanel();
+                                         auxX.setLayout(new GridLayout(2,1));
+                                         JLabel auxX1=new JLabel((String)data1[rowCount1][2]+" "+(String)data1[rowCount1][3]);
+                                         auxX1.setForeground(Color.ORANGE);
+                                         auxX.add(auxX1);
+                                         JLabel auxX2=new JLabel((String)data1[rowCount1][1]);
+                                         auxX2.setForeground(Color.ORANGE);
+                                         auxX.add(auxX2);
+                                         Color auxCuloare=new Color(1,1,1);
+                                         if (rowCount1%2==0)
+                                            auxCuloare=Color.gray;
+                                         else
+                                             auxCuloare=Color.DARK_GRAY;
+                                         auxX.setAlignmentX(Component.CENTER_ALIGNMENT);
+                                         auxX.setBackground(auxCuloare);
+                                         auxX.setForeground(Color.ORANGE);
+                                         auxX.setPreferredSize(new Dimension(120,400));
+                                         chatStanga.add(auxX);
+                                         JPanel auxCC1=new JPanel();
+                                         JLabel auxC1=new JLabel((String)data1[rowCount1][0]);
+                                         auxC1.setForeground(Color.ORANGE);
+                                         auxCC1.setBackground(auxCuloare);
+                                         auxCC1.add(auxC1);
+                                         chatCentru.add(auxCC1);
+                                         rowCount1++;
+                                     }
+
+                                     Object[][] data2=new Object[14][4];
+                                     selectStatement.execute("Call AFISARE_MEMBRII_GRUP("+auxTransmitere+")");
+                                     rs2 = selectStatement.getResultSet();
+
+                                     int rowCount2=0;
+                                     auxParticipanti.removeAll();
+                                     auxParticipanti.setLayout(new GridLayout(18,1));
+                                     JLabel explicatieParticipanti=new JLabel("Participanti: ");
+                                     explicatieParticipanti.setBackground(Color.darkGray);
+                                     explicatieParticipanti.setForeground(Color.ORANGE);
+                                     auxParticipanti.add(explicatieParticipanti);
+                                     while(rs2.next()) {
+                                         data2[rowCount2][0] = rs2.getString("nume");
+                                         data2[rowCount2][1] = rs2.getString("prenume");
+                                         JLabel auxLabel=new JLabel((String)data2[rowCount2][0]+" "+(String)data2[rowCount2][1]);
+                                         auxLabel.setForeground(Color.ORANGE);
+                                         auxParticipanti.add(auxLabel);
+
+                                         rowCount2++;
+                                     }
+
+                                     JPanel down=new JPanel();
+                                     down.setBackground(Color.darkGray);
+                                     JTextField mesaj=new JTextField(50);
+                                     JButton sendMesaj=new JButton("Trimite");
+
+                                     sendMesaj.addActionListener(new ActionListener() {
+                                         @Override
+                                         public void actionPerformed(ActionEvent e) {
+                                             //System.out.println(auxTransmitere);
+                                             Statement selectStatementM;
+                                             try{
+                                                 Connection connection4 = DriverManager.getConnection("jdbc:mysql://localhost/proiectbd?user=root&password=root");
+                                                 ResultSet rsM = null;
+
+                                                 Date auxTimp= new Date(System.currentTimeMillis());
+                                                 String date = new SimpleDateFormat("yyyy-MM-dd").format(auxTimp);
+                                                 selectStatementM = connection4.createStatement();
+                                                 selectStatementM.execute("insert into mesaje_activitati(grupuri_id_grup,grupuri_studenti_persoane_CNP ,mesaj, data_mesaj) values " +
+                                                         "("+auxTransmitere+",'"+cnp+"','"+mesaj.getText()+"','"+date+"');");
+                                                 control=1;
+                                                 grupuri.doClick();
+                                                 System.out.println("Se apasa aici");
+
+
+                                             }  catch(SQLException sqlex) {
+                                                 System.err.println("An SQL Exception occured. Details below:");
+                                                 sqlex.printStackTrace(System.err);
+                                             }
+                                         }
+                                     });
+
+                                     System.out.println(control+" ");
+
+                                     sendMesaj.setBackground(Color.ORANGE);
+                                     down.add(mesaj);
+                                     down.add(sendMesaj);
+                                     down.setPreferredSize(new Dimension(700,100));
+
+                                     auxParticipanti.setBackground(Color.darkGray);
+                                     auxParticipanti.setForeground(Color.ORANGE);
+
+                                     auxChat.setLayout(new BorderLayout());
+                                     chatStanga.setBackground(Color.DARK_GRAY);
+                                     auxChat.add(chatStanga,BorderLayout.WEST);
+                                     auxChat.add(chatCentru,BorderLayout.CENTER);
+                                     auxChat.add(down,BorderLayout.SOUTH);
+
+                                     //try {
+                                       //  TimeUnit.SECONDS.sleep(5);}catch (InterruptedException ie) {
+                                         //Thread.currentThread().interrupt();
+                                     //}
+                                     auxChat.revalidate();
+                                     auxChat.repaint();
+                                     auxChat.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+                                 }  catch(SQLException sqlex) {
+                                     System.err.println("An SQL Exception occured. Details below:");
+                                     sqlex.printStackTrace(System.err);
+                                 }
+                             }});
+                         }

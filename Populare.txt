@@ -1,0 +1,102 @@
+insert into persoane( CNP,nume,prenume ,adresa,nr_tel ,email ,IBAN,nr_contract,functia )
+values
+('1991010234563','Greab','Alex','Strada Nufarului',0741273382,'alex99@yahoo.com','ROBDE1234162435296857341',1,'profesor'),
+('1991010234564','Pop','Alex','Strada Paris',0761273382,'alex11@yahoo.com','ROBDE1234162435296857342',12,'profesor'),
+('1991010234565','Leonte','Petru','Strada Narciselor',0741993382,'petruleonte@yahoo.com','ROBDE1234162435296857343',13,'profesor'),
+
+('1991010234566','Manzar','Andrei','Strada Aries',0641273382,'andrei@yahoo.com','ROBDE1234162435296857344',111,'student'),
+('1991010234567','Mircea','Dan','Strada Bucovinei',0111273382,'dan@yahoo.com','ROBDE1234162435296857345',221,'student'),
+('1991010234568','Gal','Marin','Strada Bicaz',0741123382,'marin@yahoo.com','ROBDE1234162435296857346',122,'student'),
+('1991010234569','Pantea','Bogdan','Strada Unirii',0741273382,'bogdan@yahoo.com','ROBDE1234162435296857347',2121,'student'),
+
+('1991010234510','Tudor','Ilie','Strada Generalilor',0741456382,'tudor@yahoo.com','ROBDE1234162435296857348',11,'administrator'),
+('3991010234510','Varga','Robert','Strada Baritiu',0331456382,'robert@yahoo.com','ROBDE1234162435116857348',1221,'super-administrator')
+;
+
+insert into studenti( persoane_CNP,an_studiu,Nr_ore)
+values
+('1991010234566',2020,30),
+('1991010234567',2020,30),
+('1991010234568',2020,30),
+('1991010234569',2020,30)
+;
+
+insert into profesori( persoane_CNP,departament,nr_min_ore,nr_max_ore)
+values
+('1991010234563','informatica',30,45),
+('1991010234564','informatica',20,33),
+('1991010234565','matematica',31,35)
+;
+
+insert into administratori( persoane_CNP,tip)
+values
+('1991010234510',2),
+('3991010234510',1)
+;
+
+insert into cursuri( Id_curs,profesori_persoane_CNP,nume_curs,descriere,pondere_curs, pondere_seminar, pondere_laborator)
+values
+(123,'1991010234563','Programarea Calculatoarelor','Prezenta obligatorie la seminar',50,20,30),
+(111,'1991010234564','Structuri de date si algoritmi','Prezenta obligatorie la laborator',60,20,20),
+(100,'1991010234565','Analiza Matematica','Prezenta obligatorie la curs',70,0,30)
+;
+
+
+insert into note( studenti_persoane_CNP,cursuri_profesori_persoane_CNP,cursuri_Id_curs,materie,nota_lab,nota_curs,nota_seminar)
+values
+('1991010234567','1991010234565',100,'Analiza Matematica',5,8,6),
+('1991010234566','1991010234563',123,'Programarea Calculatoarelor',6,7,9),
+('1991010234567','1991010234564',111,'Structuri de date si algoritmi',8,9,9),
+('1991010234568','1991010234564',111,'Structuri de date si algoritmi',9,9,10),
+('1991010234569','1991010234565',100,'Analiza Matematica',8,10,7)
+;
+
+
+insert into profesori_has_cursuri( profesori_persoane_CNP,cursuri_Id_curs,cursuri_profesori_persoane_CNP)
+values
+('1991010234563',123,'1991010234563'),
+('1991010234564',111,'1991010234564'),
+('1991010234565',100,'1991010234565')
+;
+
+
+insert into orar(id, cursuri_profesori_persoane_CNP,cursuri_Id_curs,ora_inceput,ora_final,recurenta,tip_activitate)
+values
+(1,'1991010234563',123,10,12,'luni','curs'),
+(2,'1991010234563',123,16,18,'luni','seminar'),
+(3,'1991010234564',111,14,16,'marti','laborator'),
+(4,'1991010234564',111,19,21,'miercuri','curs'),
+(5,'1991010234565',100,16,18,'joi','seminar'),
+(6,'1991010234565',100,10,12,'vineri','curs');
+
+
+insert into grupuri(id_grup,studenti_persoane_CNP,materia)
+values
+(1,'1991010234566','Programarea Calculatoarelor'),
+(2,'1991010234566','Analiza Matematica'),
+(3,'1991010234566','Structuri de date si algoritmi'),
+(1,'1991010234567','Programarea Calculatoarelor'),
+(3,'1991010234567','Structuri de date si algoritmi'),
+(1,'1991010234568','Programarea Calculatoarelor'),
+(2,'1991010234568','Analiza Matematica');
+
+
+insert into activitati( id_activitate, grupuri_id_grup, grupuri_studenti_persoane_CNP,nr_min_participanti,perioada_participare,materia)
+values
+-- 2 seminar/ 1 curs / 3 lab
+(1,1,'1991010234566',150,'luni 10-12' ,'Programarea Calculatoarelor'),
+(2,1,'1991010234566',30,'joi 16-18','Programarea Calculatoarelor'),
+(1,1,'1991010234567',150,'luni 10-12' ,'Programarea Calculatoarelor'),
+(1,1,'1991010234568',150,'luni 10-12' ,'Programarea Calculatoarelor'),
+(3,3,'1991010234566',15,'vineri 14-16' ,'Structuri de date si algoritmi'),
+(4,3,'1991010234567',150,'marti 19-21','Structuri de date si algoritmi'),
+(5,2,'1991010234568',100,'marti 10-12' ,'Analiza Matematica'),
+(6,2,'1991010234568',30,'miercuri 16-18' ,'Analiza Matematica')
+;
+
+
+insert into mesaje_activitati(grupuri_id_grup,grupuri_studenti_persoane_CNP ,mesaj, data_mesaj)
+values
+(1,'1991010234566','I loooove America','2016-01-05'),
+(1,'1991010234566','I loooove America too','2016-01-05');
+

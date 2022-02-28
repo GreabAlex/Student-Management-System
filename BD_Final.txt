@@ -1,0 +1,160 @@
+create database proiectbd;
+use proiectbd;
+
+CREATE TABLE IF NOT EXISTS persoane (
+  CNP varchar(13) NOT NULL,
+  nume VARCHAR(45) NULL,
+  prenume VARCHAR(45) NULL,
+  adresa VARCHAR(125) NULL,
+  nr_tel INT(10) NULL,
+  email VARCHAR(45) NULL,
+  IBAN VARCHAR(34) NULL,
+  nr_contract INT NULL,
+  functia VARCHAR(45) NULL,
+  PRIMARY KEY ( CNP ));
+
+CREATE TABLE IF NOT EXISTS studenti (
+  persoane_CNP varchar(13) NOT NULL,
+  an_studiu INT NULL,
+  Nr_ore INT NULL,
+  PRIMARY KEY (persoane_CNP),
+  CONSTRAINT fk_studenti_persoane
+    FOREIGN KEY (persoane_CNP)
+    REFERENCES persoane (CNP)
+);
+
+CREATE TABLE IF NOT EXISTS profesori  (
+   persoane_CNP  varchar(13) NOT NULL,
+   departament  VARCHAR(50) NULL,
+   nr_min_ore  INT NULL,
+   nr_max_ore  INT NULL,
+  PRIMARY KEY ( persoane_CNP ),
+  CONSTRAINT  fk_profesori_persoane1 
+    FOREIGN KEY (persoane_CNP )
+    REFERENCES  persoane  ( CNP )
+);
+
+
+CREATE TABLE IF NOT EXISTS  administratori  (
+   persoane_CNP  varchar(13) NOT NULL,
+   tip  INT NULL,
+  PRIMARY KEY ( persoane_CNP ),
+  CONSTRAINT  fk_administratori_persoane1 
+    FOREIGN KEY ( persoane_CNP )
+    REFERENCES         persoane  ( CNP )
+);
+
+
+
+CREATE TABLE IF NOT EXISTS cursuri  (
+   Id_curs  INT NOT NULL,
+   profesori_persoane_CNP  varchar(13) NOT NULL,
+   nume_curs  VARCHAR(45) NULL,
+   descriere  VARCHAR(450) NULL,
+   pondere_curs int,
+   pondere_seminar int,
+   pondere_laborator int,
+  PRIMARY KEY ( Id_curs ,  profesori_persoane_CNP )
+);
+
+
+
+CREATE TABLE IF NOT EXISTS note  (
+   studenti_persoane_CNP  varchar(13) NOT NULL,
+   cursuri_profesori_persoane_CNP  varchar(13) NOT NULL,
+   cursuri_Id_curs  INT NOT NULL,
+   materie  VARCHAR(45) NULL,
+   nota_lab  INT NULL,
+   nota_curs  INT NULL,
+   nota_seminar  INT NULL,
+  PRIMARY KEY ( studenti_persoane_CNP ,  cursuri_profesori_persoane_CNP ,  cursuri_Id_curs ),
+  INDEX  fk_note_cursuri1_idx  ( cursuri_Id_curs  ASC,  cursuri_profesori_persoane_CNP  ASC) VISIBLE,
+  CONSTRAINT  fk_note_studenti1 
+    FOREIGN KEY ( studenti_persoane_CNP )
+    REFERENCES  studenti  ( persoane_CNP ),
+  CONSTRAINT  fk_note_cursuri1 
+    FOREIGN KEY ( cursuri_Id_curs  ,  cursuri_profesori_persoane_CNP )
+    REFERENCES cursuri  ( Id_curs  ,  profesori_persoane_CNP )
+) ;
+
+
+
+CREATE TABLE IF NOT EXISTS profesori_has_cursuri  (
+	profesori_persoane_CNP  varchar(13) NOT NULL,
+	cursuri_Id_curs  INT NOT NULL,
+	cursuri_profesori_persoane_CNP  varchar(13) NOT NULL,
+	PRIMARY KEY ( profesori_persoane_CNP ,  cursuri_Id_curs ,  cursuri_profesori_persoane_CNP ),
+	INDEX  fk_profesori_has_cursuri_cursuri1_idx  ( cursuri_Id_curs  ASC,  cursuri_profesori_persoane_CNP  ASC) VISIBLE,
+	INDEX  fk_profesori_has_cursuri_profesori1_idx  ( profesori_persoane_CNP  ASC) VISIBLE,
+	CONSTRAINT  fk_profesori_has_cursuri_profesori1 
+	FOREIGN KEY ( profesori_persoane_CNP )
+	REFERENCES profesori  ( persoane_CNP ),
+	CONSTRAINT  fk_profesori_has_cursuri_cursuri1 
+    FOREIGN KEY ( cursuri_Id_curs  ,  cursuri_profesori_persoane_CNP )
+    REFERENCES  cursuri  ( Id_curs  ,  profesori_persoane_CNP )
+);
+
+
+
+
+CREATE TABLE IF NOT EXISTS  orar  (
+	id int NOT NULL,
+   cursuri_profesori_persoane_CNP  varchar(13) NOT NULL,
+   cursuri_Id_curs  INT NOT NULL,
+   ora_inceput  INT NULL,
+   ora_final  INT NULL,
+   recurenta  varchar(15),
+   tip_activitate  VARCHAR(45) NULL,
+  PRIMARY KEY ( id, cursuri_profesori_persoane_CNP ,  cursuri_Id_curs ),
+  CONSTRAINT  fk_orar_cursuri1 
+    FOREIGN KEY ( cursuri_Id_curs  ,  cursuri_profesori_persoane_CNP )
+    REFERENCES         cursuri  ( Id_curs  ,  profesori_persoane_CNP )
+);
+
+
+CREATE TABLE IF NOT EXISTS grupuri (
+  id_grup VARCHAR(45) NOT NULL,
+  studenti_persoane_CNP VARCHAR(13) NOT NULL,
+  materia VARCHAR(45) NULL,
+  PRIMARY KEY (id_grup, studenti_persoane_CNP),
+  INDEX fk_studenti_has_activitati_studenti1_idx (studenti_persoane_CNP ASC) VISIBLE,
+  CONSTRAINT fk_studenti_has_activitati_studenti1
+    FOREIGN KEY (studenti_persoane_CNP)
+    REFERENCES studenti (persoane_CNP));
+
+
+
+CREATE TABLE IF NOT EXISTS activitati (
+  id_activitate INT NOT NULL,
+  grupuri_id_grup VARCHAR(45) NOT NULL,
+  grupuri_studenti_persoane_CNP VARCHAR(13) NOT NULL,
+  nr_min_participanti INT NULL DEFAULT NULL,
+  perioada_participare VARCHAR(45) NULL DEFAULT NULL,
+  materia VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (id_activitate, grupuri_id_grup, grupuri_studenti_persoane_CNP),
+  INDEX fk_activitati_grupuri1_idx (grupuri_id_grup ASC, grupuri_studenti_persoane_CNP ASC) VISIBLE,
+  CONSTRAINT fk_activitati_grupuri1
+    FOREIGN KEY (grupuri_id_grup , grupuri_studenti_persoane_CNP)
+    REFERENCES grupuri (id_grup , studenti_persoane_CNP)
+    );
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS mesaje_activitati (
+  idMesaje_activitati INT NOT NULL AUTO_INCREMENT,
+  grupuri_id_grup VARCHAR(45) NOT NULL,
+  grupuri_studenti_persoane_CNP VARCHAR(13) NOT NULL,
+  mesaj VARCHAR(900) NULL DEFAULT NULL,
+  data_mesaj DATE NULL DEFAULT NULL,
+  PRIMARY KEY (idMesaje_activitati, grupuri_id_grup, grupuri_studenti_persoane_CNP),
+  INDEX fk_mesaje_activitati_grupuri1_idx (grupuri_id_grup ASC, grupuri_studenti_persoane_CNP ASC) VISIBLE,
+  CONSTRAINT fk_mesaje_activitati_grupuri1
+    FOREIGN KEY (grupuri_id_grup , grupuri_studenti_persoane_CNP)
+    REFERENCES grupuri (id_grup , studenti_persoane_CNP)
+);
+
+
+
+

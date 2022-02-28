@@ -1,0 +1,189 @@
+delimiter //
+create PROCEDURE 
+AFISARE_ACTIVITATI_PROFESORI(persoane_CNP  varchar(13))
+BEGIN    
+    START TRANSACTION;
+	SET @PROF := persoane_CNP;
+    select cursuri.nume_curs, orar.tip_activitate,orar.recurenta , orar.ora_inceput, orar.ora_final
+from profesori, profesori_has_cursuri,cursuri, orar
+where profesori.persoane_cnp=@PROF and
+profesori.persoane_cnp=profesori_has_cursuri.profesori_persoane_cnp and
+profesori_has_cursuri.cursuri_id_curs=cursuri.id_curs and
+profesori_has_cursuri.profesori_persoane_CNP=cursuri.profesori_persoane_CNP and
+cursuri.id_curs=orar.cursuri_Id_curs and
+cursuri.profesori_persoane_CNP=orar.cursuri_profesori_persoane_cnp;
+  END //
+  
+  delimiter ;
+
+
+
+
+#/////////////////////////
+
+delimiter // 
+create PROCEDURE 
+AFISARE_ACTIVITATI_STUDENTI(persoane_CNP  varchar(13))
+BEGIN
+    START TRANSACTION;
+    SET @STUD := persoane_CNP;
+    select distinct activitati.materia, activitati.perioada_participare from activitati, studenti , persoane, grupuri
+    where studenti.persoane_CNP=@STUD and 
+    studenti.persoane_cnp=grupuri.studenti_persoane_CNP and 
+    grupuri.studenti_persoane_CNP=activitati.grupuri_studenti_persoane_cnp;
+
+  END //
+  delimiter ; 
+
+#/////////////////////////
+
+   delimiter // 
+create PROCEDURE 
+AFISARE_GRUPURI_STUDENT(persoane_CNP  varchar(13))
+BEGIN    
+    START TRANSACTION;
+	SET @STUD := persoane_CNP;
+    select  grupuri.id_grup, grupuri.materia from grupuri where grupuri.studenti_persoane_CNP=@STUD;
+    
+  END//
+  delimiter ;
+
+
+#/////////////////////////
+
+delimiter //
+  CREATE PROCEDURE 
+  AFISARE_MEMBRII_GRUP(id_grup int)
+BEGIN    
+    START TRANSACTION;
+	SET @id := id_grup;
+    select nume, prenume from persoane,studenti,grupuri where grupuri.id_grup=@id and grupuri.studenti_persoane_cnp=studenti.persoane_cnp and persoane.cnp=studenti.persoane_cnp;
+    
+  END//
+  delimiter ;
+
+#/////////////////////////
+
+delimiter //
+  CREATE PROCEDURE 
+  AFISARE_MESAJE_GRUP(id_grup int)
+BEGIN    
+    START TRANSACTION;
+	SET @id := id_grup;
+    select mesaje_activitati.mesaj, mesaje_activitati.data_mesaj, persoane.nume, persoane.prenume  from persoane,studenti,grupuri,mesaje_activitati 
+    where grupuri.id_grup=@id and mesaje_activitati.grupuri_studenti_persoane_cnp=grupuri.studenti_persoane_cnp 
+    and grupuri.studenti_persoane_cnp=studenti.persoane_cnp and studenti.persoane_cnp=persoane.cnp order by  data_mesaj asc;
+    
+  END//
+  delimiter ;
+
+#///////////////////////////
+
+ delimiter //
+ CREATE  PROCEDURE AFISARE_NOTE_STUDENT(persoane_CNP  varchar(13))
+
+BEGIN
+    START TRANSACTION;
+    SET @STUD := persoane_CNP;
+    select  note.materie,note.nota_lab ,note.nota_curs,note.nota_seminar,cursuri.pondere_curs,cursuri.pondere_seminar,cursuri.pondere_laborator
+ from studenti,note,cursuri
+ where studenti.persoane_CNP=@STUD and studenti.persoane_CNP=note.studenti_persoane_CNP and cursuri.id_curs=note.cursuri_id_curs
+ and cursuri.profesori_persoane_CNP=note.cursuri_profesori_persoane_CNP;
+  END //
+  delimiter ;
+
+#///////////////////////////
+
+ delimiter //
+  
+ create PROCEDURE
+ AFISARE_STUDENTI_PROFESOR(persoane_CNP  varchar(13))
+BEGIN    
+    START TRANSACTION;
+	SET @PROF := persoane_CNP;
+    select /*profesori.persoane_CNP ,*/cursuri.nume_curs,persoane.nume ,persoane.prenume,persoane.cnp, note.nota_curs, note.nota_lab,note.nota_seminar
+from profesori, profesori_has_cursuri,cursuri, note,studenti,persoane
+where profesori.persoane_cnp=@PROF and
+profesori.persoane_cnp=profesori_has_cursuri.profesori_persoane_cnp and
+profesori_has_cursuri.cursuri_id_curs=cursuri.id_curs and cursuri.id_curs=note.cursuri_id_curs 
+and note.studenti_persoane_cnp=studenti.persoane_cnp and persoane.cnp=studenti.persoane_cnp ;
+  END//
+  delimiter ;
+
+#///////////////////////////
+
+delimiter //
+CREATE  PROCEDURE CAUTARE_CURS(nume_curs varchar(45))
+BEGIN    
+    START TRANSACTION;
+	SET @num := nume_curs;
+    select * from cursuri
+	where cursuri.nume_curs=@num;
+  END  //
+  delimiter ;
+
+#////////////////////////
+
+  delimiter //
+CREATE PROCEDURE cautare_cursuri_student(persoane_cnp varchar(13))
+BEGIN    
+    START TRANSACTION;
+	SET @cnp := persoane_cnp;
+    select nume_curs , orar.ora_inceput,orar.ora_final ,orar.recurenta,orar.tip_activitate 
+    from studenti,note,cursuri ,orar
+	where studenti.persoane_CNP=@cnp and
+	studenti.persoane_cnp=note.studenti_persoane_CNP and 
+	note.cursuri_id_curs=cursuri.id_curs and cursuri.id_curs=orar.cursuri_id_curs;
+
+  END //
+  delimiter ;
+
+#///////////////////////////
+ delimiter //
+CREATE  PROCEDURE CAUTARE_Profesor_CURS(cnp varchar(45))
+BEGIN    
+    START TRANSACTION;
+	SET @num := cnp;
+    select persoane.nume, persoane.prenume from persoane
+	where persoane.cnp=@num;
+  END  //
+  delimiter ;
+
+#/////////////////////////////
+
+ delimiter //
+CREATE  PROCEDURE CAUTARE_studenti_CURS(cnp varchar(45), id_curs int)
+BEGIN    
+    START TRANSACTION;
+	SET @cnp := cnp;
+    SET @id=id_curs;
+    select persoane.nume, persoane.prenume from persoane, note
+	where note.cursuri_profesori_persoane_CNP=@cnp and cursuri_Id_curs=@id and persoane.cnp=studenti_persoane_CNP;
+  END  //
+  delimiter ;
+
+#/////////////////////////////
+
+delimiter //
+CREATE  PROCEDURE CAUTARE_UTILIZATOR(nume varchar(45), prenume varchar(45))
+BEGIN    
+    START TRANSACTION;
+	SET @num := nume;
+    SET @pren := prenume;
+    select * from persoane
+	where persoane.nume=@num and persoane.prenume=@pren;
+  END  //
+  delimiter ;
+
+#///////////////////////////
+
+CREATE  PROCEDURE ID_MATERIE(id_curs int)
+BEGIN    
+    START TRANSACTION;
+	SET @id := id_curs;
+    select profesori_persoane_CNP, nume_curs
+    from cursuri
+	where cursuri.id_curs=@id;
+
+  END //
+  delimiter ;
